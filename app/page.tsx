@@ -1,14 +1,12 @@
-"use client"
-
 import Container from "@/components/container";
 import { Button } from "@/components/ui/button";
-import { db } from "@/db";
-import { sql } from "drizzle-orm";
+// import { db } from "@/db";
+// import { sql } from "drizzle-orm";
 import Link from "next/link";
 
 
 export default async function HomePage() {
-  const { rows: [database] } = await db.execute(sql`SELECT current_database() AS database`);
+  // const res = await db.execute(sql`SELECT current_database();`);
 
   return (
     <Container>
@@ -17,9 +15,7 @@ export default async function HomePage() {
         <Button>
           <Link href="/dashboard">Sign In</Link>
         </Button>
-        <p className="text-center">
-          Connected to <code>{database}</code>
-        </p>
+
       </main>
     </Container>
   );
