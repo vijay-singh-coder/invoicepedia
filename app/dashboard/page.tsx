@@ -1,8 +1,8 @@
-import Container from "@/components/container";
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
-import Link from "next/link";
 import { Invoices } from "@/db/schema";
+import Container from "@/components/container";
+import Link from "next/link";
 
 import {
     Table,
@@ -18,7 +18,6 @@ import { db } from "@/db";
 
 export default async function DashboardPage() {
     const results = await db.select().from(Invoices);
-    console.log(results);
     return (
         <Container className="w-full min-h-screen">
             <main className="flex flex-col justify-between gap-4 items-center py-4">
