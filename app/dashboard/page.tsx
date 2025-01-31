@@ -15,9 +15,21 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/db";
+import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-    const results = await db.select().from(Invoices);
+
+    const { userId } = await auth();
+    if (!userId) {
+        redirect("/sign-in")
+        return
+    }
+    const results = await db.select()
+        .from(Invoices)
+        .where(eq(Invoices.userId, userId));
+
     return (
         <Container className="w-full min-h-screen">
             <main className="flex flex-col justify-between gap-4 items-center py-4">

@@ -8,7 +8,7 @@ export default defineConfig({
     schema: './db/schema.ts',
     dialect: 'postgresql',
     dbCredentials: {
-        url: process.env.XATA_DATABASE_URL!, 
+        url: process.env.XATA_DATABASE_URL!,
     },
 });
 

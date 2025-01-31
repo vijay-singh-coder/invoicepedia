@@ -1,11 +1,16 @@
+import { AVILABLE_STATUSES } from "@/data/invoice";
 import { integer, pgTable, timestamp, text, pgEnum, serial } from "drizzle-orm/pg-core";
 
-export const statusEnum = pgEnum("status", [
-    "open",
-    "paid",
-    "void",
-    "uncollectible"
-])
+
+export type Status = (typeof AVILABLE_STATUSES)[number]["id"];
+
+const statuses = AVILABLE_STATUSES.map(({ id }) => id) as Array<Status>;
+
+export const statusEnum = pgEnum(
+    "status",
+    statuses as [Status, ...Array<Status>],
+);
+
 
 export const Invoices = pgTable("invoices", {
     id: serial("id").primaryKey().notNull(),
