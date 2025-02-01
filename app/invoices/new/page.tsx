@@ -42,7 +42,7 @@ export default function DashboardPage() {
                         <Label htmlFor="description" className="font-semibold">Description</Label>
                         <Textarea id="description" name="description" placeholder="Description" />
                     </div>
-                    <SubmitButton />
+                    <SubmitButton text="Submit" />
                 </Form>
             </main>
         </Container>

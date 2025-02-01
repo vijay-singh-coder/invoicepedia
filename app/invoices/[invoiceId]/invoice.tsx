@@ -1,12 +1,12 @@
 "use client"
-import { updateStatusAction } from "@/app/action"
+import { updateStatusAction, deleteStatusAction } from "@/app/action"
 import Container from "@/components/container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AVILABLE_STATUSES } from "@/data/invoice"
-import { Invoices } from "@/db/schema"
+import { Customers, Invoices } from "@/db/schema"
 import { cn } from "@/lib/utils"
-import { useOptimistic } from "react"
+import { SyntheticEvent, useOptimistic, useState } from "react"
 
 import {
     DropdownMenu,
@@ -15,11 +15,35 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { Ellipsis, Trash2 } from "lucide-react"
+import SubmitButton from "@/components/SubmitButton"
+
 interface InvoiceProps {
-    invoice: typeof Invoices.$inferSelect
+    invoice: typeof Invoices.$inferSelect & {
+        customer: typeof Customers.$inferSelect
+    }
 }
 
 export default function Invoice({ invoice }: InvoiceProps) {
+
+    const [state, setState] = useState("start")
+    function deleteHandler(event: SyntheticEvent) {
+        if (state === "pending") {
+            event.preventDefault()
+            return
+        }
+        setState("pending")
+    }
 
     const [currentStatus, setCurrentStatus] = useOptimistic(
         invoice.status,
@@ -56,11 +80,12 @@ export default function Invoice({ invoice }: InvoiceProps) {
                             {currentStatus}
                         </Badge>
                     </div>
-                    <p>
+
+                    <div className="flex gap-2 items-center">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline">
-                                    Status
+                                    Change Status
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
@@ -76,7 +101,48 @@ export default function Invoice({ invoice }: InvoiceProps) {
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                    </p>
+                        <Dialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline">
+                                        <Ellipsis size={16} />
+                                        <span className="sr-only">More Options</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem>
+                                        {/* Wrap multiple elements with a React.Fragment */}
+                                        <DialogTrigger asChild>
+                                            <div className="flex items-center gap-2">
+                                                <Trash2 size={16} />
+                                                <button type="submit">Delete</button>
+                                            </div>
+                                        </DialogTrigger>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                    <DialogDescription>
+                                        This action cannot be undone. This will permanently delete your invoice
+                                        and remove your data from our servers.
+                                    </DialogDescription>
+                                    <DialogFooter>
+                                        <form
+                                            onSubmit={deleteHandler}
+                                            action={deleteStatusAction}
+                                            className="flex gap-2 items-center justify-center"
+                                        >
+                                            <input type="hidden" name="id" value={invoice.id} />
+                                            <SubmitButton text="Delete" variant="destructive" className="w-full" />
+                                        </form>
+                                    </DialogFooter>
+                                </DialogHeader>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+
                 </div>
                 <p className="text-3xl mb-3">${(invoice.value / 100).toFixed(2)}</p>
 
@@ -102,8 +168,7 @@ export default function Invoice({ invoice }: InvoiceProps) {
                             Billing Name
                         </strong>
                         <span>
-                            {/* {results.customer.name} */}
-                            vijay singh
+                            {invoice.customer.name}
 
                         </span>
                     </li>
@@ -112,8 +177,7 @@ export default function Invoice({ invoice }: InvoiceProps) {
                             Billing Email
                         </strong>
                         <span>
-                            {/* {results.customer.email} */}
-                            vijaysingh@email.com
+                            {invoice.customer.email}
                         </span>
                     </li>
                 </ul>

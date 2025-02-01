@@ -15,6 +15,20 @@
       "when": 1738207098109,
       "tag": "0001_lucky_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738308660345,
+      "tag": "0002_minor_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1738379626545,
+      "tag": "0003_natural_valkyrie",
+      "breakpoints": true
     }
   ]
 }

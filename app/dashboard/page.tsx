@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
-import { Invoices } from "@/db/schema";
+import { Customers, Invoices } from "@/db/schema";
 import Container from "@/components/container";
 import Link from "next/link";
 
@@ -18,6 +18,8 @@ import { db } from "@/db";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { cn } from "@/lib/utils";
+
 
 export default async function DashboardPage() {
 
@@ -28,7 +30,15 @@ export default async function DashboardPage() {
     }
     const results = await db.select()
         .from(Invoices)
+        .innerJoin(Customers, eq(Customers.id, Invoices.customerId))
         .where(eq(Invoices.userId, userId));
+
+    const invoices = results?.map(({ invoices, customers }) => {
+        return {
+            ...invoices,
+            customer: customers
+        };
+    });
 
     return (
         <Container className="w-full min-h-screen">
@@ -56,7 +66,7 @@ export default async function DashboardPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {results.map((invoice) => (
+                        {invoices.map((invoice) => (
                             <TableRow key={invoice.id} className="hover:bg-gray-100 cursor-pointer">
                                 <TableCell className="py-4 font-medium">
                                     <Link
@@ -71,7 +81,7 @@ export default async function DashboardPage() {
                                         href={`/invoices/${invoice.id}`}
                                         className="w-full h-full block"
                                     >
-                                        {invoice.description}
+                                        {invoice.customer.name}
                                     </Link>
                                 </TableCell>
                                 <TableCell className="py-4">
@@ -79,7 +89,7 @@ export default async function DashboardPage() {
                                         href={`/invoices/${invoice.id}`}
                                         className="w-full h-full block"
                                     >
-                                        vj23act@email.com
+                                        {invoice.customer.email}
                                     </Link>
                                 </TableCell>
                                 <TableCell className="py-4">
@@ -87,7 +97,17 @@ export default async function DashboardPage() {
                                         href={`/invoices/${invoice.id}`}
                                         className="w-full h-full block"
                                     >
-                                        <Badge className="rounded-full">{invoice.status}</Badge>
+                                        <Badge
+                                            className={cn(
+                                                "rounded-full capitalize",
+                                                invoice.status === "open" && "bg-blue-500",
+                                                invoice.status === "paid" && "bg-green-600",
+                                                invoice.status === "void" && "bg-zinc-700",
+                                                invoice.status === "uncollectible" && "bg-red-600",
+                                            )}
+                                        >
+                                            {invoice.status}
+                                        </Badge>
                                     </Link>
                                 </TableCell>
                                 <TableCell className="py-4 text-right">
